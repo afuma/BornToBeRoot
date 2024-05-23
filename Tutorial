@@ -1,0 +1,34 @@
+
+tuto borntoberoot:
+https://web.archive.org/web/20220508112748/https://www.codequoi.com/born2beroot-02-configurer-un-serveur-virtuel-debian/#le_service_cron
+
+lsblk: checker les partitions (comme sur le sujet)
+sudo aa-status (ckecker apparmor, il faut au'il soit loaded)
+sudo adduser test evaluating (ajoute l'utilisateur test au groupe evaluating)
+getent group (checker les groupes)
+sudo addgroup evaluating
+sudo ufw status (checker ufw, active)
+sudo service ssh status (checker ssh, active)
+ssh test@localhost -p 4141
+sudo vim /etc/login.defs (checker le fichier pour configurer le mot de passe)
+defaults requiretty (bloque les connexions hors locale pour sudo)
+sudo vim /etc/pam.d/common-password (u, uppercase, l, lowercase, d, digit, difok, nombre de character different de l'ancien password)
+
+sudo visudo
+sudo crontab -e (checker le fichier crontab)
+localisation monitoring.sh (usr/local/bin)
+
+sudo ufw allow 8080 (autorise)
+sudo ufw status (check)
+sudo ufw delete allow 8080 (supprime le port) //sudo ufw deny 8080 (interdit)
+sudo vim /etc/hostname (changer le nom du host)
+sudo vim /etc/hosts (pareil)
+
+sha1sum Born2beroot_final.vdi (pour creer la signature et copier coller dans le fichier signature.txt)
+
+(mettre bandtime a 1m (1 minute)) sinon on ne pourra pas se reconnecter avant 1 jour minimum)
+si le site en http s'affiche ca veut dire que c'est bon
+
+Pour file2ban
+sudo fail2ban-client status ( voir le service surveiller)
+sudo fail2ban-client status sshd

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Boucle infinie
+#while true; do
+
+# Récupération de l'architecture et de la version du noyau
+arc=$(uname -a)
+
+# Récupération du nombre de processeurs physiques
+pcpu=$(grep "physical id" /proc/cpuinfo | sort | uniq | wc -l)
+
+# Récupération du nombre de processeurs virtuels
+vcpu=$(grep "^processor" /proc/cpuinfo | wc -l)
+
+# Récupération de la mémoire totale et de l'utilisation actuelle en mégaoctets
+fram=$(free -m | awk '$1 == "Mem:" {print $2}')
+uram=$(free -m | awk '$1 == "Mem:" {print $3}')
+
+# Calcul du taux d'utilisation de la mémoire en pourcentage
+pram=$(free | awk '$1 == "Mem:" {printf("%.2f"), $3/$2*100}')
+
+# Récupération du taux d'utilisation des processeurs en pourcentage
+cpul=$(top -bn1 | grep '^%Cpu' | cut -c 9- | xargs | awk '{printf("%.1f%%"), $1 + $3}')
+
+# Récupération de la date et de l'heure du dernier redémarrage
+lastboot=$(who -b)
+lastboot_date=$(echo "$lastboot" | awk '{print $3 " " $4}')
+
+# Détermination de l'utilisation de LVM
+lvmt=$(lsblk | grep "lvm" | wc -l)
+if [ $lvmt -eq 0 ]; then
+  lvmu="non"
+else
+  lvmu="oui"
+fi
+
+# Récupération du nombre de connexions actives
+ctcp=$(cat /proc/net/sockstat{,6} | awk '$1 == "TCP:" {print $3}')
+
+# Récupération du nombre d'utilisateurs connectés
+ulog=$(users | wc -w)
+
+# Récupération de l'adresse IPv4 et de l'adresse MAC du serveur
+ip=$(hostname -I)
+mac=$(ip link show | awk '$1 == "link/ether" {print $2}')
+
+# Récupération du nombre de commandes exécutées avec sudo
+cmds=$(journalctl _COMM=sudo | grep COMMAND | wc -l)
+
+# Récupération de l'espace disque total et de l'utilisation actuelle en mégaoctets
+fdisk=$(df -BG | grep '^/dev/' | grep -v '/boot$' | awk '{ft += $2} END {print ft}')
+udisk=$(df -BM | grep '^/dev/' | grep -v '/boot$' | awk '{ut += $3} END {print ut}')
+pdisk=$(df -BM | grep '^/dev/' | grep -v '/boot$' | awk '{ut += $2} {ft+= $2} END {printf("%d"), ut/ft*100}')
+
+# Affichage des informations
+wall "    Architecture: $arc
+    Processeurs physiques: $pcpu
+    Processeurs virtuels: $vcpu
+    Utilisation de la mémoire: $uram/${fram}Mo ($pram%)
+    Utilisation des processeurs: $cpul
+    Dernier redémarrage: $lastboot_date
+    Utilisation de LVM: $lvmu
+    Connexions actives: $ctcp
+    Utilisateurs connectés: $ulog
+    IPv4: $ip
+    Adresse MAC: $mac
+    Commandes exécutées avec sudo: $cmds
+    Utilisation du disque: $udisk/${fdisk}Gb ($pdisk%)"
+
+ # Attente de 10 minutes avant la prochaine exécution
+ # sleep 600
+#done
